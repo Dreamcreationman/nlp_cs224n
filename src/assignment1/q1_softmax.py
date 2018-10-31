@@ -30,22 +30,16 @@ def softmax(x):
 
     if len(x.shape) > 1:
         # Matrix
-        exp_minmax = lambda x: np.exp(x - np.max(x))
-        denom = lambda x: 1.0 / np.sum(x)
-        x = np.apply_along_axis(exp_minmax, 1, x)
-        denominator = np.apply_along_axis(denom, 1, x)
-
-        if len(denominator.shape) == 1:
-            denominator = denominator.reshape((denominator.shape[0], 1))
-
-        x = x * denominator
+        max_x = np.max(x, axis=1)
+        x -= max_x.reshape([x.shape[0], 1])
+        exp_x = np.exp(x)
+        x = exp_x / np.sum(exp_x, axis=1).reshape([exp_x.shape[0], 1])
     else:
         # Vector
-        x_max = np.max(x)
-        x = x - x_max
-        numerator = np.exp(x)
-        denominator = 1.0 / np.sum(numerator)
-        x = numerator.dot(denominator)
+        max_x = np.max(x)
+        x -= max_x
+        exp_x = np.exp(x)
+        x = exp_x / np.sum(exp_x)
 
     assert x.shape == orig_shape
     return x
@@ -56,25 +50,25 @@ def test_softmax_basic():
     Some simple tests to get you started.
     Warning: these are not exhaustive.
     """
-    print ("Running basic tests...")
+    print("Running basic tests...")
     test1 = softmax(np.array([1,2]))
-    print (test1)
+    print(test1)
     ans1 = np.array([0.26894142,  0.73105858])
     assert np.allclose(test1, ans1, rtol=1e-05, atol=1e-06)
 
     test2 = softmax(np.array([[1001,1002],[3,4]]))
-    print (test2)
+    print(test2)
     ans2 = np.array([
         [0.26894142, 0.73105858],
         [0.26894142, 0.73105858]])
     assert np.allclose(test2, ans2, rtol=1e-05, atol=1e-06)
 
     test3 = softmax(np.array([[-1001,-1002]]))
-    print (test3)
+    print(test3)
     ans3 = np.array([0.73105858, 0.26894142])
     assert np.allclose(test3, ans3, rtol=1e-05, atol=1e-06)
 
-    print ("You should be able to verify these results by hand!\n")
+    print("You should be able to verify these results by hand!\n")
 
 
 def test_softmax():
@@ -84,7 +78,7 @@ def test_softmax():
     This function will not be called by the autograder, nor will
     your tests be graded.
     """
-    print ("Running your tests...")
+    print("Running your tests...")
     ### YOUR CODE HERE
     raise NotImplementedError
     ### END YOUR CODE
